@@ -1,4 +1,10 @@
+#TODO change the import module to add type and then start refactoring with the dotnet client library methods
+
+Import-Module Kubernetes
+Import-Module KubernetesClient
+
 # AKS Authentication Helper Function
+###TODO Refactor with the dotnet client library
 function Get-AKSCredentials {
     param (
         [string]$ResourceGroupName,
