@@ -1,0 +1,31 @@
+@{
+
+  ModuleVersion     = '1.0.0'
+  GUID              = 'some-guid-here' # Replace with a real GUID
+  Author            = 'Author Name'
+  CompanyName       = 'Company Name'
+  Copyright         = 'Copyright (c) 2021 Company Name'
+  Description       = 'PowerShell module for managing Kubernetes resources using the C# KubernetesClient libraries.'
+
+  # PowerShell version compatibility
+  PowerShellVersion = '5.1'
+  # .NET Framework version compatibility
+  DotNetFrameworkVersion = '4.7.2'
+  # Required modules
+  RequiredModules   = @()
+  # Files to include in the module
+  FileList          = @('K8Module.dll', 'ModuleManifest.ps1xml')
+
+  # Exported functions, cmdlets, and variables
+  FunctionsToExport = @('Get-AKSCredentials', 'New-K8sHPA', 'Get-K8sHPAs', 'Update-K8sHPA', 'Remove-K8sHPA', ...)
+  CmdletsToExport   = @()
+  VariablesToExport = @()
+
+  # Aliases to export
+  AliasesToExport   = @()
+
+  # Module dependencies
+  RequiredAssemblies = @('KubernetesClient.dll')
+  NestedModules      = @()
+
+}

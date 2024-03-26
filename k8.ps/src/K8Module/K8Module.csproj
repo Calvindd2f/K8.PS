@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>K8Module</AssemblyName>
+    <RootNamespace>K8Module</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KubernetesClient" Version="6.0.0" />
+    <!-- Add other necessary package references here -->
+  </ItemGroup>
+
+</Project>
