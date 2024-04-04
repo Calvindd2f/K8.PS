@@ -9,7 +9,7 @@
 It got a bit messy when trying to do pure pwsh so no point fighting upward battle.
 Compiled the dlls and now focusing primarily on C# binary module.
 
-PS7+ unfortunately.
+PS7 because it is `%currentyear%`
 
 PowerShell-based module will be kept and maintained however it is not a priority and thus; nor are the issues.
 
@@ -23,9 +23,79 @@ function Remove-K8sHPA {
 function New-K8sSecret {
 function Get-K8sSecret {
 #endregion Skeletonized
+```
 
+In the interest of clarity; by skeleton I do not mean this [guy]
 
+```cs
+using k8s;
+using System.Management.Automation;
 
+namespace K8Module.Classes
+{
+    [Cmdlet(VerbsCommon.Get, "AKSCredentials")]
+    public class GetAKSCredentials : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Process AKS credentials
+            WriteObject("AKS credentials retrieved successfully.");
+        }
+    }
+    [Cmdlet(VerbsCommon.New, "K8sHPAs")]
+    public class NewK8sHPAs : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Retrieve HPAs
+        }
+    }
+    // Get-K8sHPAs
+    [Cmdlet(VerbsCommon.Get, "K8sHPAs")]
+    public class GetK8sHPAs : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Retrieve HPAs
+        }
+    }
+    // Update-K8sHPA
+    [Cmdlet(VerbsData.Update, "K8sHPA")]
+    public class UpdateK8sHPA : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Update an HPA
+        }
+    }
+    // Remove-K8sHPA
+    [Cmdlet(VerbsCommon.Remove, "K8sHPA")]
+    public class RemoveK8sHPA : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Remove an HPA
+        }
+    }
+    // End of Horizontal Autoscaling classes..
+    // Start of ConfigMap classes:
+    //
+    // New-K8sConfigMap
+```
+
+```powershell
 #region TODOskeleton
 function Set-K8ModuleConfiguration {
 function Get-K8ModuleConfiguration {
