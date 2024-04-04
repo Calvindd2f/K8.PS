@@ -25,7 +25,7 @@ function Get-K8sSecret {
 #endregion Skeletonized
 ```
 
-In the interest of clarity; by skeleton I do not mean this [guy]
+In the interest of clarity; by skeleton I do not mean this [guy](https://www.google.com/url?sa=i&url=https%3A%2F%2Ftwitter.com%2Fdguspodcast&psig=AOvVaw1jQBZkUjLo4bkv9KN4IBlJ&ust=1712288882934000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCPjHpafTp4UDFQAAAAAdAAAAABAJ)
 
 ```cs
 using k8s;
