@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("K8Module")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25cce1c28e55737d23918ddd10ebb31235598f3c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+290e7e7037fcc440f2e9e57ec532597b1d22952c")]
 [assembly: System.Reflection.AssemblyProductAttribute("K8Module")]
 [assembly: System.Reflection.AssemblyTitleAttribute("K8Module")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

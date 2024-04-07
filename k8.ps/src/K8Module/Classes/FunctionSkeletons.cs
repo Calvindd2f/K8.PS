@@ -1,38 +1,80 @@
 
-using k8s;
+using K8S;
 using System.Management.Automation;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace K8Module.Classes
 {
+    // Get-AKSCredentials
     [Cmdlet(VerbsCommon.Get, "AKSCredentials")]
-    public class GetAKSCredentials : PSCmdlet
+    public class GetAksCredentials : PSCmdlet
     {
+        [Parameter(Mandatory = true)]
+        public string KeyVaultUrl { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string SecretName { get; set; }
+
         protected override void ProcessRecord()
         {
             // Logic to retrieve AKS credentials
-            WriteObject("AKS credentials retrieved successfully.");
+            var credential = new DefaultAzureCredential();
+            var client = new SecretClient(new Uri(KeyVaultUrl), credential);
+
+            var secret = client.GetSecret(SecretName);
+            var credentials = secret.Value;
+
+            WriteObject($"AKS credentials retrieved successfully. Credentials: {credentials}");
         }
     }
-    [Cmdlet(VerbsCommon.New, "K8sHPAs")]
-    public class NewK8sHPAs : PSCmdlet
+    // New-K8SHPAs
+    [Cmdlet(VerbsCommon.New, "K8SHPAs")]
+    public class NewK8Shpas : PSCmdlet
     {
         protected override void ProcessRecord()
         {
-            // Implementation to retrieve HPAs
+            var hpaList = new List<HorizontalPodAutoscaler>();
+
+            // Retrieve HPAs from Kubernetes API
+            var kubernetesClient = new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
+            var hpaListResponse = kubernetesClient.ListNamespacedHorizontalPodAutoscaler("your-namespace");
+
+            foreach (var hpa in hpaListResponse.Items)
+            {
+                hpaList.Add(hpa);
+            }
+
+            // Process the retrieved HPAs
+            foreach (var hpa in hpaList)
+            {
+                // Process each HPA here
+                // ...
+            }
         }
     }
-    // Example: Skeleton for Get-K8sHPAs
-    [Cmdlet(VerbsCommon.Get, "K8sHPAs")]
-    public class GetK8sHPAs : PSCmdlet
+    // Skeleton for Get-K8SHPAs
+    [Cmdlet(VerbsCommon.Get, "K8SHPAs")]
+    public class GetK8Shpas : PSCmdlet
     {
+        [Parameter(Mandatory = false)]
+        public string Namespace { get; set; }
+
         protected override void ProcessRecord()
         {
             // Implementation to retrieve HPAs
+            var kubernetesClient = new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
+            var hpaListResponse = kubernetesClient.ListNamespacedHorizontalPodAutoscaler(Namespace);
+
+            foreach (var hpa in hpaListResponse.Items)
+            {
+                // Process each HPA
+            }
         }
     }
-    // Example: Skeleton for Update-K8sHPA
-    [Cmdlet(VerbsData.Update, "K8sHPA")]
-    public class UpdateK8sHPA : PSCmdlet
+    // Skeleton for Update-K8SHPA
+    [Cmdlet(VerbsData.Update, "K8SHPA")]
+    public class UpdateK8Shpa : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -43,11 +85,19 @@ namespace K8Module.Classes
         protected override void ProcessRecord()
         {
             // Implementation to update an HPA
+            var kubernetesClient = new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
+            var hpa = kubernetesClient.ReadNamespacedHorizontalPodAutoscaler(Name, Namespace);
+            
+            // Modify the properties of the hpa object here
+            
+            var updatedHpa = kubernetesClient.ReplaceNamespacedHorizontalPodAutoscaler(hpa, Name, Namespace);
+            
+            // Process the updated HPA object as needed
         }
     }
-    // Skeleton for Remove-K8sHPA
-    [Cmdlet(VerbsCommon.Remove, "K8sHPA")]
-    public class RemoveK8sHPA : PSCmdlet
+    // Skeleton for Remove-K8SHPA
+    [Cmdlet(VerbsCommon.Remove, "K8SHPA")]
+    public class RemoveK8Shpa : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -57,15 +107,16 @@ namespace K8Module.Classes
 
         protected override void ProcessRecord()
         {
-            // Implementation to remove an HPA
+            var kubernetesClient = new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
+            kubernetesClient.DeleteNamespacedHorizontalPodAutoscaler(Name, Namespace);
         }
     }
     // End of Horizontal Autoscaling classes..
     // Start of ConfigMap classes:
     //
-    // New-K8sConfigMap
-    [Cmdlet(VerbsCommon.New, "K8sConfigMap")]
-    public class NewK8sConfigMap : PSCmdlet
+    // New-K8SConfigMap
+    [Cmdlet(VerbsCommon.New, "K8SConfigMap")]
+    public class NewK8SConfigMap : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -75,17 +126,40 @@ namespace K8Module.Classes
 
         protected override void ProcessRecord()
         {
-            // Implementation to create a new ConfigMap
+            var kubernetesClient = new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
+            var configMap = new V1ConfigMap
+            {
+                Metadata = new V1ObjectMeta
+                {
+                    Name = Name,
+                    Namespace = Namespace
+                }
+            };
+            var createdConfigMap = kubernetesClient.CreateNamespacedConfigMap(configMap, Namespace);
+            
+
         }
     }
+    // Get-K8SConfigMap
+    [Cmdlet(VerbsCommon.Get, "K8SConfigMap")]
+    public class GetK8SConfigMap : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
 
-    // Add more function skeletons as needed...
+        [Parameter(Mandatory = true)]        public string Namespace { get; set; }
 
-
-
-    // Skeleton for New-K8sSecret
-    [Cmdlet(VerbsCommon.New, "K8sSecret")]
-    public class NewK8sSecret : PSCmdlet
+        protected override void ProcessRecord()
+        {
+            // Implementation to create a get ConfigMap
+        }
+    }
+    // Start of Secret classes:
+    //
+    //
+    // Skeleton for New-K8SSecret
+    [Cmdlet(VerbsCommon.New, "K8SSecret")]
+    public class NewK8SSecret : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -96,11 +170,20 @@ namespace K8Module.Classes
         protected override void ProcessRecord()
         {
             // Implementation to create a new Secret
+            var secret = new V1Secret
+            {
+                Metadata = new V1ObjectMeta
+                {
+                    Name = Name,
+                    Namespace = Namespace
+                }
+            };
+            var createdSecret = kubernetesClient.CreateNamespacedSecret(secret, Namespace);
         }
     }
-    // Get-K8sSecret
-    [Cmdlet(VerbsCommon.Get, "K8sSecret")]
-    public class GetK8sSecret : PSCmdlet
+    // Get-K8SSecret
+    [Cmdlet(VerbsCommon.Get, "K8SSecret")]
+    public class GetK8SSecret : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -110,48 +193,166 @@ namespace K8Module.Classes
 
         protected override void ProcessRecord()
         {
-            // Implementation to create a new Secret
+            var secret = kubernetesClient.ReadNamespacedSecret(Name, Namespace);
+            // Process the retrieved secret
         }
     }
-
-
-    
-    // Skeleton for Get-K8sIngresses
-    [Cmdlet(VerbsCommon.Get, "K8sIngresses")]
-    public class GetK8sIngresses : PSCmdlet
+     // Start of ingress classes:
+    //
+    //
+    // Skeleton for Get-K8SIngresses
+    [Cmdlet(VerbsCommon.Get, "K8SIngresses")]
+    public class GetK8SIngresses : PSCmdlet
     {
         protected override void ProcessRecord()
         {
             // Implementation to retrieve Ingresses
         }
     }
-
-    // Skeleton for New-K8sPV
-    [Cmdlet(VerbsCommon.New, "K8sPV")]
-    public class NewK8sPV : PSCmdlet
+    // Skeleton for New-K8SIngresses
+    [Cmdlet(VerbsCommon.New, "K8SIngresses")]
+    public class GetK8SIngresses : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to new retrieve Ingresses
+        }
+    }
+    // Skeleton for Update-K8SIngresses
+    [Cmdlet(VerbsCommon.New, "K8SIngresses")]
+    public class RemoveK8SIngresses : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to new retrieve Ingresses
+        }
+    }
+    // Skeleton for Remove-K8SIngresses
+    [Cmdlet(VerbsCommon.New, "K8SIngresses")]
+    public class UpdateK8SIngresses : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to new retrieve Ingresses
+        }
+    }
+    // Start of AuthCOntext classes:
+    //
+    //
+    // Skeleton for Set-K8AuthenticationHeader
+    [Cmdlet(VerbsCommon.Set, "K8AuthenticationHeader")]
+    public class SetK8AuthenticationHeader : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
 
         protected override void ProcessRecord()
         {
-            // Implementation to create a new Persistent Volume (PV)
+            // Implementation to create a Set-K8AuthenticationHeader
         }
     }
+    // Switch-K8Context
+    [Cmdlet(VerbsCommon.Switch, "K8Context")]
+    public class SwitchK8Context : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
 
-    // Add more function skeletons as needed...
-    // Skeleton for Get-K8sServices
-    [Cmdlet(VerbsCommon.Get, "K8sServices")]
-    public class GetK8sServices : PSCmdlet
+        protected override void ProcessRecord()
+        {
+            // Implementation to create a Switch-K8Context
+        }
+    }
+    // Get-K8Context
+    [Cmdlet(VerbsCommon.Get, "K8Context")]
+    public class GetK8Context : PSCmdlet
     {
         protected override void ProcessRecord()
         {
-            // Implementation to retrieve Services
+            // Implementation to create a Get-K8Context
         }
     }
-    // Skeleton for New-K8sPod
-    [Cmdlet(VerbsCommon.New, "K8sPod")]
-    public class NewK8sPod : PSCmdlet
+    // Get-K8SToken
+    [Cmdlet(VerbsCommon.Get, "K8SToken")]
+    public class GetK8SToken : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to create a Get-K8SToken
+        }
+    }
+    // Start of ResourceMgMt classes:
+    //
+    //
+    // Skeleton for Get-KubeResource
+    [Cmdlet(VerbsCommon.Get, "KubeResource")]
+    public class GetKubeResource : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to retrieve KubeResource
+        }
+    }
+    // Skeleton for New-KubeDeployment
+    [Cmdlet(VerbsCommon.New, "KubeDeployment")]
+    public class NewKubeDeployment : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to create a new Deployment
+        }
+    }
+    // Skeleton for Remove-KubeResource
+    [Cmdlet(VerbsCommon.Remove, "KubeResource")]
+    public class RemoveKubeResource : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to remove a KubeResource
+        }
+    }
+    // Skeleton for Update-KubeResource
+    [Cmdlet(VerbsData.Update, "KubeResource")]
+    public class UpdateKubeResource : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to update a KubeResource
+        }
+    }
+    // Start of PodMgMt classes:
+    //
+    //
+    // Skeleton for  Get-K8SPods
+    [Cmdlet(VerbsCommon.Get, "K8SPods")] 
+    public class GetK8SPods : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to retrieve Pods
+        }
+    }
+    // Skeleton for  New-K8SPod
+    [Cmdlet(VerbsCommon.New, "K8SPods")] 
+    public class NewK8SPod : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -164,9 +365,37 @@ namespace K8Module.Classes
             // Implementation to create a new Pod
         }
     }
-    // Skeleton for Update-K8sService
-    [Cmdlet(VerbsData.Update, "K8sService")]
-    public class UpdateK8sService : PSCmdlet
+    // Start of SvcMgmt classes:
+    //
+    //
+    // Skeleton for  New-K8SService
+    [Cmdlet(VerbsCommon.New, "K8SServices")]
+    public class NewK8SServices : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to create a new Service
+        }
+    }
+    
+    // Skeleton for  Get-K8SServices 
+    [Cmdlet(VerbsCommon.Get, "K8SServices")]
+    public class GetK8SServices : PSCmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            // Implementation to retrieve Services
+        }
+    }
+    // Skeleton for  Update-K8SService 
+    [Cmdlet(VerbsCommon.Update, "K8SServices")]
+    public class UpdateK8SService : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name { get; set; }
@@ -179,3 +408,53 @@ namespace K8Module.Classes
             // Implementation to update a Service
         }
     }
+    // Skeleton for  Remove-K8SService 
+    [Cmdlet(VerbsCommon.Remove, "K8SServices")]
+    public class UpdateK8SService : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to update a Service
+        }
+    }
+    // Start of Pv classes:
+    //
+    //
+    // Skeleton for  New-K8SPV 
+    [Cmdlet(VerbsCommon.New, "K8SPV")]
+    public class NewK8SPv : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to update a Service
+        }
+    }
+    // Skeleton for  Get-K8SPVs
+    [Cmdlet(VerbsCommon.Get, "K8SPV")]
+    public class GetK8SPv : PSCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = true)]
+        public string Namespace { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            // Implementation to update a Service
+        }
+    }
+    // Skeleton for New-K8SPod
+}
